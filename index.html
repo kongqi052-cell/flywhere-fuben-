@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>飞哪儿 FlyWhere</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--ink:#1a1a2e;--paper:#f5f0e8;--accent:#e85d3a;--mist:#8b9eb7;--card:#fff;--bd:#e0d9cc}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif;background:var(--paper);color:var(--ink);font-size:14px}
+
+/* HEADER */
+.hd{position:sticky;top:0;z-index:99;display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:50px;background:rgba(245,240,232,.97);border-bottom:1px solid var(–bd)}
+.logo{font-size:1rem;color:var(–ink);display:flex;align-items:center;gap:5px;font-weight:600;letter-spacing:-.3px}
+.logo b{color:var(–accent);font-weight:600}
+.logo-zh{font-size:.65rem;color:var(–mist);font-weight:400}
+.ls{display:flex;gap:4px}
+.lb{padding:3px 9px;border:1px solid var(–bd);border-radius:20px;background:transparent;font-size:.68rem;cursor:pointer;color:var(–mist)}
+.lb.on{background:var(–ink);color:#fff;border-color:var(–ink)}
+
+/* HERO */
+.hero{padding:12px 14px 10px;background:var(–card);border-bottom:1px solid var(–bd)}
+.tl{font-size:1.3rem;font-weight:700;line-height:1.25;margin-bottom:3px}
+.sl{font-size:.72rem;color:var(–mist)}
+.sl b{color:var(–accent);font-weight:600}
+
+/* FILTERS */
+.ft{background:var(–card);padding:10px 14px 8px;border-bottom:1px solid var(–bd)}
+.fr{display:flex;gap:8px;margin-bottom:8px}
+.fr:last-child{margin-bottom:0}
+.fg{display:flex;flex-direction:column;gap:3px;flex:1}
+.fl{font-size:.58rem;text-transform:uppercase;letter-spacing:.09em;color:var(–mist);font-weight:500}
+select{padding:7px 26px 7px 9px;border:1px solid var(–bd);border-radius:8px;background:var(–paper);font-size:.75rem;color:var(–ink);width:100%;-webkit-appearance:none;-moz-appearance:none;appearance:none;outline:none;background-image:url(“data:image/svg+xml;charset=utf-8,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘12’ height=‘12’%3E%3Cpath fill=’%238b9eb7’ d=‘M6 8L1 3h10z’/%3E%3C/svg%3E”);background-repeat:no-repeat;background-position:right 7px center}
+
+/* RESULTS BAR */
+.rb{padding:7px 14px;display:flex;justify-content:space-between;align-items:center;background:var(–paper);font-size:.65rem;color:var(–mist);border-bottom:1px solid var(–bd);position:sticky;top:50px;z-index:98}
+.rc{font-weight:700;color:var(–ink)}
+
+/* CITY LIST */
+.cl{padding:10px;display:flex;flex-direction:column;gap:8px}
+
+/* CITY CARD — no image */
+.cc{background:var(–card);border:1px solid var(–bd);border-radius:12px;padding:12px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.cc-l{flex:1;min-width:0}
+.cn{font-size:1rem;font-weight:700;color:var(–ink)}
+.cfl{font-size:.68rem;color:var(–mist);margin-left:4px}
+.chk{font-size:.72rem;color:#555;margin-top:4px;line-height:1.4}
+.cvb{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.vp{font-size:.58rem;padding:2px 6px;background:var(–paper);border:1px solid var(–bd);border-radius:10px;color:var(–mist)}
+.cc-r{text-align:right;flex-shrink:0}
+.pfr{font-size:.55rem;color:var(–mist);display:block}
+.pr{font-size:1.2rem;font-weight:700;color:var(–accent)}
+.fb{display:inline-block;margin-top:3px;font-size:.57rem;color:var(–mist);background:var(–paper);border:1px solid var(–bd);padding:2px 6px;border-radius:7px}
+
+/* EMPTY */
+.emp{text-align:center;padding:40px 20px;color:var(–mist)}
+.emp .ei{font-size:2rem;margin-bottom:8px}
+.emp p{font-size:.78rem;line-height:1.6}
+
+/* SECTIONS */
+.sec{padding:16px 14px 12px;border-top:6px solid var(–paper)}
+.sec-title{font-size:1rem;font-weight:700;color:var(–ink);margin-bottom:2px}
+.sec-sub{font-size:.68rem;color:var(–mist);margin-bottom:12px}
+
+/* EVENT CARD */
+.ev-wrap{display:flex;align-items:stretch}
+.ev-card{flex:1;background:var(–ink);border-radius:14px 0 0 14px;padding:14px 13px;cursor:pointer;min-height:120px;display:flex;flex-direction:column;gap:4px}
+.ev-tag{display:inline-block;font-size:.62rem;padding:2px 8px;border-radius:20px;background:var(–accent);color:#fff}
+.ev-city{font-size:.67rem;color:rgba(255,255,255,.5);margin-top:1px}
+.ev-name{font-size:1rem;font-weight:700;color:#fff;line-height:1.25}
+.ev-date{font-size:.68rem;color:rgba(255,255,255,.65)}
+.ev-price{font-size:.72rem;color:#f4a07a;font-weight:600}
+.ev-extra{font-size:.69rem;color:rgba(255,255,255,.6);line-height:1.5;display:none;margin-top:6px;border-top:1px solid rgba(255,255,255,.12);padding-top:8px}
+.ev-extra.show{display:block}
+.ev-hint{font-size:.6rem;color:rgba(255,255,255,.3);margin-top:4px}
+.ev-next{width:44px;background:#252545;border:none;border-radius:0 14px 14px 0;color:rgba(255,255,255,.4);font-size:1.4rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0}
+
+/* ARTICLES */
+.art-list{display:flex;flex-direction:column;gap:8px}
+.art-card{background:var(–card);border:1px solid var(–bd);border-radius:12px;overflow:hidden;display:flex;height:84px;cursor:pointer}
+.art-icon{width:84px;height:84px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.art-body{padding:9px 12px;flex:1;min-width:0;display:flex;flex-direction:column;justify-content:space-between}
+.art-tag{font-size:.58rem;text-transform:uppercase;letter-spacing:.07em;color:var(–accent);font-weight:600}
+.art-title{font-size:.83rem;font-weight:600;line-height:1.3;color:var(–ink)}
+.art-meta{font-size:.62rem;color:var(–mist)}
+
+/* DEALS */
+.deal-list{display:flex;flex-direction:column;gap:7px}
+.deal-card{background:var(–card);border:1px solid var(–bd);border-radius:10px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.deal-l{flex:1;min-width:0}
+.deal-route{font-size:.9rem;font-weight:700;color:var(–ink)}
+.deal-info{font-size:.66rem;color:var(–mist);margin-top:1px}
+.deal-badge{font-size:.58rem;background:#fff3f0;color:var(–accent);border:1px solid #ffd0c5;border-radius:10px;padding:2px 7px;margin-top:4px;display:inline-block}
+.deal-r{text-align:right;flex-shrink:0}
+.deal-price{font-size:1.25rem;font-weight:700;color:var(–accent)}
+.deal-was{font-size:.6rem;color:var(–mist);text-decoration:line-through}
+.deal-btn{display:block;margin-top:3px;font-size:.63rem;background:var(–accent);color:#fff;border:none;border-radius:7px;padding:4px 9px;cursor:pointer;width:100%}
+
+/* LIVE PRICE */
+.lp-box{margin-bottom:12px;background:#f0f8ff;border:1px solid #c8e4f8;border-radius:10px;padding:10px 12px}
+.lp-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:#5a9ec9;font-weight:600;margin-bottom:4px}
+.lp-row{display:flex;align-items:center;gap:8px}
+.lp-price{font-size:1.4rem;font-weight:700;color:#1a6fa0}
+.lp-meta{font-size:.65rem;color:#7aadcc;line-height:1.4}
+.lp-loading{font-size:.72rem;color:#8b9eb7;display:flex;align-items:center;gap:5px}
+.lp-dot{width:6px;height:6px;border-radius:50%;background:#8b9eb7;animation:lpblink .8s infinite alternate}
+@keyframes lpblink{to{opacity:.2}}
+.lp-err{font-size:.7rem;color:#b09070}
+.lp-route{font-size:.62rem;color:#5a9ec9;margin-top:2px}
+
+/* OVERLAY */
+.ov{display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(26,26,46,.45)}
+.ov.on{display:block}
+
+/* DETAIL SHEET */
+.sh{position:fixed;left:0;right:0;bottom:0;z-index:201;background:var(–card);border-radius:18px 18px 0 0;max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease}
+.sh.on{transform:translateY(0)}
+.sh-handle{display:flex;justify-content:center;padding:10px 0 4px;position:sticky;top:0;background:var(–card);z-index:1}
+.sh-bar{width:36px;height:4px;background:var(–bd);border-radius:2px}
+/* image placeholder in sheet */
+.sh-imgbox{width:100%;height:180px;background:linear-gradient(135deg,#e8e0d5 0%,#d4c9bc 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.sh-imgbox .ph-icon{font-size:2.5rem}
+.sh-imgbox .ph-txt{font-size:.7rem;color:#aaa}
+.sh-inner{padding:14px 16px 40px}
+.sh-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.sh-name{font-size:1.5rem;font-weight:700}
+.sh-meta{font-size:.7rem;color:var(–mist);margin-top:2px}
+.sh-x{background:var(–paper);border:1px solid var(–bd);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(–mist);cursor:pointer;flex-shrink:0;margin-top:2px}
+.ir{display:flex;gap:6px;margin-bottom:12px}
+.ib{background:var(–paper);border-radius:9px;padding:8px 7px;flex:1}
+.ibl{font-size:.55rem;text-transform:uppercase;letter-spacing:.07em;color:var(–mist);margin-bottom:3px}
+.ibv{font-size:.73rem;color:var(–ink);font-weight:600;line-height:1.3}
+.ibv b{color:var(–accent);font-size:.9rem}
+.hlr{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.hlc{font-size:.7rem;padding:4px 9px;background:var(–paper);border:1px solid var(–bd);border-radius:20px}
+.sdesc{font-size:.77rem;color:#444;line-height:1.65;margin-bottom:14px}
+.bb{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:13px;background:var(–accent);color:#fff;border:none;border-radius:11px;font-size:.84rem;font-weight:600;cursor:pointer;text-decoration:none}
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div class="hd">
+  <div class="logo">✈ Fly<b>Where</b> <span class="logo-zh">飞哪儿</span></div>
+  <div class="ls">
+    <button class="lb on" id="lb-zh" onclick="setLang('zh')">中文</button>
+    <button class="lb" id="lb-en" onclick="setLang('en')">EN</button>
+    <button class="lb" id="lb-de" onclick="setLang('de')">DE</button>
+  </div>
+</div>
+
+<!-- HERO -->
+
+<div class="hero">
+  <div class="tl" id="el-tl">有假期，不知道飞哪？</div>
+  <div class="sl">Find your next trip <b>under €100</b></div>
+</div>
+
+<!-- FILTERS -->
+
+<div class="ft">
+  <div class="fr">
+    <div class="fg">
+      <div class="fl" id="el-lc">出发国家</div>
+      <select id="sC" onchange="updAP()"></select>
+    </div>
+    <div class="fg">
+      <div class="fl" id="el-la">出发机场</div>
+      <select id="sA" onchange="go()"></select>
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fg">
+      <div class="fl" id="el-lb">最高票价</div>
+      <select id="sB" onchange="go()"></select>
+    </div>
+    <div class="fg">
+      <div class="fl" id="el-lv">旅行风格</div>
+      <select id="sV" onchange="go()"></select>
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fg">
+      <div class="fl" id="el-ld">假期天数</div>
+      <select id="sD" onchange="go()"></select>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS BAR -->
+
+<div class="rb">
+  <span id="el-rl">找到 <span class="rc" id="el-rn">0</span> 个目的地</span>
+  <span id="el-rs">↑ 按票价排序</span>
+</div>
+
+<!-- CITY LIST -->
+
+<div class="cl" id="CL"></div>
+
+<!-- EVENT SECTION -->
+
+<div class="sec">
+  <div class="sec-title" id="el-evT">🎴 今天去做什么？</div>
+  <div class="sec-sub" id="el-evS">点击卡片查看详情 · 右边 × 换一张</div>
+  <div class="ev-wrap">
+    <div class="ev-card" id="evCard" onclick="tapEvent()">
+      <div class="ev-tag" id="evTag"></div>
+      <div class="ev-city" id="evCity"></div>
+      <div class="ev-name" id="evName"></div>
+      <div class="ev-date" id="evDate"></div>
+      <div class="ev-price" id="evPrice"></div>
+      <div class="ev-extra" id="evExtra"></div>
+      <div class="ev-hint" id="evHint">点击查看详情</div>
+    </div>
+    <button class="ev-next" onclick="nextEv()">×</button>
+  </div>
+</div>
+
+<!-- ARTICLES SECTION -->
+
+<div class="sec">
+  <div class="sec-title" id="el-artT">📖 城市攻略</div>
+  <div class="art-list" id="AL"></div>
+</div>
+
+<!-- DEALS SECTION -->
+
+<div class="sec">
+  <div class="sec-title" id="el-dlT">🔥 本周捡漏</div>
+  <div class="sec-sub" id="el-dlS">限时低价，先到先得</div>
+  <div class="deal-list" id="DL"></div>
+</div>
+
+<!-- OVERLAY -->
+
+<div class="ov" id="OV" onclick="closeSheet()"></div>
+
+<!-- DETAIL SHEET -->
+
+<div class="sh" id="SH">
+  <div class="sh-handle"><div class="sh-bar"></div></div>
+  <div class="sh-imgbox">
+    <div class="ph-icon" id="dIcon"></div>
+    <div class="ph-txt" id="el-phTxt">图片即将上线</div>
+  </div>
+  <div class="sh-inner">
+    <div class="sh-hd">
+      <div>
+        <div class="sh-name" id="dN"></div>
+        <div class="sh-meta" id="dM"></div>
+      </div>
+      <div class="sh-x" onclick="closeSheet()">✕</div>
+    </div>
+    <div class="ir">
+      <div class="ib"><div class="ibl" id="el-dp">最低票价</div><div class="ibv" id="dP"></div></div>
+      <div class="ib"><div class="ibl" id="el-ds">建议游玩</div><div class="ibv" id="dS"></div></div>
+      <div class="ib"><div class="ibl" id="el-dc">日消费</div><div class="ibv" id="dC"></div></div>
+    </div>
+    <!-- 实时机票价格 -->
+    <div class="lp-box" id="lpBox">
+      <div class="lp-label">✈ 实时机票价格</div>
+      <div id="lpContent"><div class="lp-loading"><span class="lp-dot"></span> 正在查询实时价格…</div></div>
+      <div class="lp-route" id="lpRoute"></div>
+    </div>
+    <div class="hlr" id="dHL"></div>
+    <div class="sdesc" id="dD"></div>
+    <a class="bb" id="dBk" href="#" target="_blank">✈ 查看机票</a>
+  </div>
+</div>
+
+<script>
+// ── AIRPORTS ──────────────────────────────────
+var AP = {
+  DE:[{c:"BER",n:{zh:"柏林",en:"Berlin",de:"Berlin"}},{c:"MUC",n:{zh:"慕尼黑",en:"Munich",de:"München"}},{c:"FRA",n:{zh:"法兰克福",en:"Frankfurt",de:"Frankfurt"}},{c:"DUS",n:{zh:"杜塞尔多夫",en:"Düsseldorf",de:"Düsseldorf"}},{c:"CGN",n:{zh:"科隆",en:"Cologne",de:"Köln"}},{c:"STR",n:{zh:"斯图加特",en:"Stuttgart",de:"Stuttgart"}},{c:"HAM",n:{zh:"汉堡",en:"Hamburg",de:"Hamburg"}}],
+  FR:[{c:"CDG",n:{zh:"巴黎",en:"Paris CDG",de:"Paris CDG"}},{c:"ORY",n:{zh:"巴黎南",en:"Paris Orly",de:"Paris Orly"}},{c:"LYS",n:{zh:"里昂",en:"Lyon",de:"Lyon"}},{c:"MRS",n:{zh:"马赛",en:"Marseille",de:"Marseille"}}],
+  NL:[{c:"AMS",n:{zh:"阿姆斯特丹",en:"Amsterdam",de:"Amsterdam"}},{c:"EIN",n:{zh:"埃因霍温",en:"Eindhoven",de:"Eindhoven"}}],
+  PL:[{c:"WAW",n:{zh:"华沙",en:"Warsaw",de:"Warschau"}},{c:"KRK",n:{zh:"克拉科夫",en:"Kraków",de:"Krakau"}},{c:"KTW",n:{zh:"卡托维兹",en:"Katowice",de:"Kattowitz"}},{c:"WRO",n:{zh:"弗罗茨瓦夫",en:"Wrocław",de:"Breslau"}}],
+  IT:[{c:"FCO",n:{zh:"罗马",en:"Rome",de:"Rom"}},{c:"MXP",n:{zh:"米兰",en:"Milan",de:"Mailand"}},{c:"BGY",n:{zh:"贝加莫",en:"Bergamo",de:"Bergamo"}},{c:"NAP",n:{zh:"那不勒斯",en:"Naples",de:"Neapel"}}],
+  ES:[{c:"MAD",n:{zh:"马德里",en:"Madrid",de:"Madrid"}},{c:"BCN",n:{zh:"巴塞罗那",en:"Barcelona",de:"Barcelona"}},{c:"AGP",n:{zh:"马拉加",en:"Málaga",de:"Málaga"}}],
+  AT:[{c:"VIE",n:{zh:"维也纳",en:"Vienna",de:"Wien"}},{c:"SZG",n:{zh:"萨尔茨堡",en:"Salzburg",de:"Salzburg"}}],
+  BE:[{c:"BRU",n:{zh:"布鲁塞尔",en:"Brussels",de:"Brüssel"}},{c:"CRL",n:{zh:"布鲁塞尔南",en:"Brussels South",de:"Brüssel Süd"}}],
+  CZ:[{c:"PRG",n:{zh:"布拉格",en:"Prague",de:"Prag"}}],
+  SE:[{c:"ARN",n:{zh:"斯德哥尔摩",en:"Stockholm",de:"Stockholm"}},{c:"GOT",n:{zh:"哥德堡",en:"Gothenburg",de:"Göteborg"}}],
+  HU:[{c:"BUD",n:{zh:"布达佩斯",en:"Budapest",de:"Budapest"}}],
+  RO:[{c:"OTP",n:{zh:"布加勒斯特",en:"Bucharest",de:"Bukarest"}},{c:"CLJ",n:{zh:"克卢日",en:"Cluj",de:"Cluj"}}],
+  PT:[{c:"LIS",n:{zh:"里斯本",en:"Lisbon",de:"Lissabon"}},{c:"OPO",n:{zh:"波尔图",en:"Porto",de:"Porto"}}],
+  CH:[{c:"ZRH",n:{zh:"苏黎世",en:"Zurich",de:"Zürich"}},{c:"GVA",n:{zh:"日内瓦",en:"Geneva",de:"Genf"}}]
+};
+
+// ── CITIES ──────────────────────────────────
+var CITIES = [
+  {id:1,name:{zh:"布林迪西",en:"Brindisi",de:"Brindisi"},flag:"🇮🇹",cname:{zh:"意大利",en:"Italy",de:"Italien"},price:19,ap:["BER","DUS","CGN","FRA","AMS","BRU","CDG"],vibes:["beach","history","hidden"],stay:{zh:"3-5天",en:"3-5 days",de:"3-5 Tage"},cost:"€40-60",dur:"weekend",icon:"⛵",
+   hook:{zh:"亚得里亚海边的安静古港，没有威尼斯的喧嚣",en:"A quiet ancient Adriatic port, without Venice's crowds",de:"Ruhiger Hafen an der Adria, ohne Venedigs Trubel"},
+   desc:{zh:"布林迪西是意大利鞋跟处的古老港城，古罗马时代就是东方航线的终点。老城一小时走完，咖啡和海鲜绝对值回票价。离美丽的马泰拉和奥斯图尼仅1小时车程。",en:"Brindisi sits at the heel of Italy's boot, an ancient Roman port. Walk the old center in an hour – coffee and seafood alone justify the trip. Matera is just an hour away.",de:"Brindisi liegt an der Ferse des Stiefels. Altstadt in einer Stunde erlaufbar. Kaffee und Meeresfrüchte unschlagbar. Matera eine Stunde entfernt."},
+   hl:["🌊 亚得里亚海滩","🏛 罗马列柱","🦞 新鲜海鲜","🚗 近马泰拉"],url:"https://www.skyscanner.de/flights-to/bds/"},
+
+  {id:2,name:{zh:"巴里",en:"Bari",de:"Bari"},flag:"🇮🇹",cname:{zh:"意大利",en:"Italy",de:"Italien"},price:22,ap:["DUS","CGN","BER","MUC","AMS","BRU","CDG","VIE"],vibes:["food","history","beach"],stay:{zh:"3-5天",en:"3-5 days",de:"3-5 Tage"},cost:"€45-65",dur:"weekend",icon:"🍝",
+   hook:{zh:"意大利南部真正的生活，不是给游客表演的那种",en:"Real southern Italian life, not performed for tourists",de:"Echtes süditalienisches Leben, kein Touristenspektakel"},
+   desc:{zh:"巴里是普利亚大区首府，老城的奥雷基耶特意面由老奶奶坐在门口现做，海鲜市场早上六点就开始。圣尼古拉大教堂是南意最重要的宗教建筑之一。",en:"Bari is Puglia's capital. Watch grandmothers make orecchiette pasta in old-town alleys. Seafood market opens at 6am. The Basilica di San Nicola is a must.",de:"Bari ist Apuliens Hauptstadt. Großmütter machen Orecchiette in den Gassen. Fischmarkt öffnet um 6 Uhr."},
+   hl:["🍝 手工意面","🐟 早市海鲜","⛪ 圣尼古拉教堂","🌊 白色小镇"],url:"https://www.skyscanner.de/flights-to/bri/"},
+
+  {id:3,name:{zh:"巴勒莫",en:"Palermo",de:"Palermo"},flag:"🇮🇹",cname:{zh:"西西里",en:"Sicily",de:"Sizilien"},price:29,ap:["DUS","FRA","BER","MUC","CDG","AMS","BRU","VIE"],vibes:["history","food","beach"],stay:{zh:"4-6天",en:"4-6 days",de:"4-6 Tage"},cost:"€45-70",dur:"weekend",icon:"🕌",
+   hook:{zh:"西西里首府，阿拉伯+诺曼+巴洛克的奇异文明混合",en:"Sicily's capital: Arab, Norman and Baroque civilizations in one city",de:"Siziliens Hauptstadt: Arabisch, Normannisch, Barock – in einer Stadt"},
+   desc:{zh:"巴勒莫历史复杂得像一本小说，腓尼基人、罗马人、阿拉伯人、诺曼人都统治过这里。中世纪延续至今的Ballarò街头市场，街头小吃arancina只要1.5欧。",en:"Palermo's history: Phoenicians, Romans, Arabs, Normans all ruled here. The Ballarò market has run since medieval times. Arancina street food for €1.50.",de:"Palermos Geschichte: Phönizier, Römer, Araber, Normannen. Ballarò-Markt seit dem Mittelalter."},
+   hl:["🕌 阿拉伯诺曼宫殿","🍊 街头炸饭团","🌊 蒙德洛海滩","🎭 马西莫歌剧院"],url:"https://www.skyscanner.de/flights-to/pmo/"},
+
+  {id:4,name:{zh:"那不勒斯",en:"Naples",de:"Neapel"},flag:"🇮🇹",cname:{zh:"意大利",en:"Italy",de:"Italien"},price:32,ap:["BER","MUC","FRA","DUS","AMS","CDG","BRU","VIE","PRG"],vibes:["food","history","city"],stay:{zh:"3-5天",en:"3-5 days",de:"3-5 Tage"},cost:"€40-60",dur:"weekend",icon:"🍕",
+   hook:{zh:"真正的披萨发源地，混乱但令人上瘾的南意大城市",en:"Where real pizza was born, chaotic but utterly addictive",de:"Wo echte Pizza erfunden wurde, chaotisch aber faszinierend"},
+   desc:{zh:"那不勒斯是真正的披萨发源地，一块正宗Margherita只要2欧。地下城市、庞贝古城（40分钟车程）、维苏威火山让它成为意大利最值得深挖的目的地。",en:"Naples is where real pizza was born – authentic Margherita for €2. Underground city, Pompeii (40 min away), and Mount Vesuvius make it unmissable.",de:"In Neapel wurde echte Pizza erfunden. Unterstadt, Pompeji (40 Min.) und Vesuv machen es unvergesslich."},
+   hl:["🍕 那不勒斯披萨","🏛 庞贝古城","🌋 维苏威火山","🏙 地下城市"],url:"https://www.skyscanner.de/flights-to/nap/"},
+
+  {id:5,name:{zh:"普罗夫迪夫",en:"Plovdiv",de:"Plovdiv"},flag:"🇧🇬",cname:{zh:"保加利亚",en:"Bulgaria",de:"Bulgarien"},price:25,ap:["BER","MUC","FRA","VIE","WAW","CDG","BRU","AMS"],vibes:["history","hidden","food"],stay:{zh:"3-4天",en:"3-4 days",de:"3-4 Tage"},cost:"€25-40",dur:"weekend",icon:"🏛",
+   hook:{zh:"欧洲最古老城市之一，2019文化之都，物价低得惊人",en:"One of Europe's oldest cities, 2019 Cultural Capital, shockingly cheap",de:"Eine der ältesten Städte Europas, Kulturhauptstadt 2019, erstaunlich günstig"},
+   desc:{zh:"普罗夫迪夫拥有极好的奥斯曼和罗马遗迹，2019年欧洲文化之都。物价是西欧三分之一，米其林标准的餐厅不到20欧。欧洲最被低估的城市之一。",en:"Plovdiv has remarkable Ottoman and Roman ruins. 2019 European Capital of Culture. Costs 1/3 of Western Europe. Michelin-quality restaurants under €20.",de:"Plovdiv hat osmanische und römische Ruinen. Kulturhauptstadt 2019. 1/3 der westeuropäischen Preise."},
+   hl:["🏛 古罗马剧场","🎨 老城画廊","🍷 保加利亚红酒","💰 超低物价"],url:"https://www.skyscanner.de/flights-to/pdv/"},
+
+  {id:6,name:{zh:"卡托维兹",en:"Katowice",de:"Kattowitz"},flag:"🇵🇱",cname:{zh:"波兰",en:"Poland",de:"Polen"},price:15,ap:["DUS","CGN","BER","FRA","AMS","BRU","CDG","VIE","PRG","ARN"],vibes:["hidden","city","history"],stay:{zh:"2-3天",en:"2-3 days",de:"2-3 Tage"},cost:"€20-35",dur:"weekend",icon:"⛏",
+   hook:{zh:"工业转型的创意城市，欧洲最便宜目的地之一",en:"Industrial city reborn as creative hub, one of Europe's cheapest",de:"Industriestadt als Kreativzentrum, eines der günstigsten Europas"},
+   desc:{zh:"曾是波兰煤矿中心，现在是科技+创意城市。旧矿坑改成了波兰最好的博物馆之一。离克拉科夫仅1小时，价格只有克拉科夫一半。",en:"Former coal capital turned tech and creative hub. Old mine shafts converted into world-class museums. An hour from Kraków at half the price.",de:"Ehemaliges Kohlezentrum, jetzt Kreativmetropole. Alte Schächte in Museen umgewandelt. Eine Stunde von Krakau, halb so teuer."},
+   hl:["🎵 Silesia音乐厅","⛏ 矿坑博物馆","🍺 精酿啤酒","🚂 近克拉科夫"],url:"https://www.skyscanner.de/flights-to/ktw/"},
+
+  {id:7,name:{zh:"萨格勒布",en:"Zagreb",de:"Zagreb"},flag:"🇭🇷",cname:{zh:"克罗地亚",en:"Croatia",de:"Kroatien"},price:28,ap:["BER","MUC","FRA","VIE","AMS","CDG","BRU","PRG","BUD"],vibes:["city","history","food"],stay:{zh:"2-3天",en:"2-3 days",de:"2-3 Tage"},cost:"€35-55",dur:"weekend",icon:"💔",
+   hook:{zh:"克罗地亚首都，全球唯一的失恋博物馆就在这里",en:"Croatia's capital, home of the world's only Museum of Broken Relationships",de:"Kroatiens Hauptstadt, Heimat des weltweit einzigen Museums der Zerbrochenen Beziehungen"},
+   desc:{zh:"萨格勒布有迷人的上城区和下城区，街头咖啡馆文化盛行。全球唯一的失恋博物馆就在这里。物价比布拉格还低，是被严重低估的中欧周末目的地。",en:"Zagreb has a charming upper and lower town with thriving café culture. The Museum of Broken Relationships is one of a kind globally. Cheaper than Prague.",de:"Zagreb hat eine charmante Ober- und Unterstadt. Das Museum der zerbrochenen Beziehungen ist weltweit einzigartig. Günstiger als Prag."},
+   hl:["💔 失恋博物馆","☕ 咖啡文化","🏰 石门古城","🌲 近普利特维采"],url:"https://www.skyscanner.de/flights-to/zag/"},
+
+  {id:8,name:{zh:"布拉迪斯拉发",en:"Bratislava",de:"Bratislava"},flag:"🇸🇰",cname:{zh:"斯洛伐克",en:"Slovakia",de:"Slowakei"},price:20,ap:["BER","MUC","FRA","VIE","PRG","WAW","AMS","CDG","BUD"],vibes:["city","history","hidden"],stay:{zh:"1-2天",en:"1-2 days",de:"1-2 Tage"},cost:"€30-50",dur:"weekend",icon:"🏰",
+   hook:{zh:"欧洲最小首都之一，离维也纳1小时，票价却差一半",en:"One of Europe's smallest capitals, 1h from Vienna at half the price",de:"Eine der kleinsten Hauptstädte, 1h von Wien, halb so teuer"},
+   desc:{zh:"布拉迪斯拉发老城可以在一个下午走完，城堡俯瞰多瑙河的景色绝美。啤酒和食物的性价比超过维也纳和布拉格。可以和维也纳搭配成完美的双城之旅。",en:"Bratislava's old town fits in an afternoon. The castle view over the Danube is stunning. Combine with Vienna for a perfect two-city trip.",de:"Bratislavas Altstadt passt in einen Nachmittag. Schlossblick über die Donau atemberaubend. Mit Wien kombinieren."},
+   hl:["🏰 布拉迪斯拉发城堡","🌊 多瑙河景观","🍺 超便宜啤酒","🚂 近维也纳"],url:"https://www.skyscanner.de/flights-to/bts/"},
+
+  {id:9,name:{zh:"波尔图",en:"Porto",de:"Porto"},flag:"🇵🇹",cname:{zh:"葡萄牙",en:"Portugal",de:"Portugal"},price:35,ap:["DUS","CGN","FRA","BER","MUC","AMS","BRU","CDG","MAD","BCN","LIS","OPO"],vibes:["history","food","city"],stay:{zh:"4-5天",en:"4-5 days",de:"4-5 Tage"},cost:"€50-70",dur:"weekend",icon:"🍷",
+   hook:{zh:"葡萄牙第二城，葡萄酒故乡，比里斯本更有烟火气",en:"Portugal's 2nd city, birthplace of port wine, more authentic than Lisbon",de:"Portugals zweitgrößte Stadt, Heimat des Portweins, echter als Lissabon"},
+   desc:{zh:"波尔图老城是UNESCO遗产，杜罗河两岸的彩色建筑和橡木酒桶让人流连。比里斯本便宜，游客少，生活气息更浓。Francesinha三明治一定要试。",en:"Porto's old town is UNESCO-listed. Cheaper and less crowded than Lisbon. The Francesinha sandwich is unmissable. Douro River at sunset is stunning.",de:"Portos Altstadt ist UNESCO-Welterbe. Günstiger als Lissabon. Francesinha-Sandwich ein Muss."},
+   hl:["🍷 波特酒庄","🚃 复古有轨电车","🌉 路易一世大桥","🥩 Francesinha"],url:"https://www.skyscanner.de/flights-to/opo/"},
+
+  {id:10,name:{zh:"塞维利亚",en:"Seville",de:"Sevilla"},flag:"🇪🇸",cname:{zh:"西班牙",en:"Spain",de:"Spanien"},price:45,ap:["FRA","MUC","BER","DUS","AMS","CDG","BRU","VIE","ZRH"],vibes:["history","food","city"],stay:{zh:"4-6天",en:"4-6 days",de:"4-6 Tage"},cost:"€55-80",dur:"weekend",icon:"💃",
+   hook:{zh:"弗拉明戈的故乡，西班牙最有激情的城市",en:"Birthplace of flamenco, Spain's most passionate city",de:"Geburtsort des Flamenco, Spaniens leidenschaftlichste Stadt"},
+   desc:{zh:"塞维利亚有欧洲最大的哥特式大教堂，有哥伦布的墓，有全西班牙最正宗的tapas文化。春天橙花香气弥漫，4月的Feria节热闹非凡。避开盛夏，秋冬最佳。",en:"Home to Europe's largest Gothic cathedral, Columbus's tomb, Spain's most authentic tapas. Spring orange blossom is unforgettable. Avoid midsummer heat.",de:"Europas größte Kathedrale, Kolumbus' Grab, authentischste Tapas. Frühling duftet nach Orangenblüten. Hochsommer meiden."},
+   hl:["💃 弗拉明戈","🕌 阿尔卡萨尔宫","🍻 Tapas小酒馆","🍊 橙花街道"],url:"https://www.skyscanner.de/flights-to/svq/"},
+
+  {id:11,name:{zh:"塞萨洛尼基",en:"Thessaloniki",de:"Thessaloniki"},flag:"🇬🇷",cname:{zh:"希腊",en:"Greece",de:"Griechenland"},price:28,ap:["BER","MUC","FRA","VIE","AMS","CDG","PRG","BUD"],vibes:["food","history","city"],stay:{zh:"3-5天",en:"3-5 days",de:"3-5 Tage"},cost:"€40-60",dur:"weekend",icon:"🥗",
+   hook:{zh:"希腊第二大城，美食比雅典好，游客少一半",en:"Greece's 2nd city – food beats Athens, half the tourists",de:"Griechenlands zweitgrößte Stadt – besseres Essen als Athen"},
+   desc:{zh:"塞萨洛尼基是希腊美食之都，当地人认为雅典的食物根本不算希腊菜。拜占庭遗址、奥斯曼建筑、犹太文化遗产和谐共处，海边长廊是欧洲最美之一。",en:"Thessaloniki is Greece's food capital. Byzantine ruins, Ottoman architecture, and Jewish heritage beautifully coexist. The waterfront is one of Europe's finest.",de:"Thessaloniki ist Griechenlands Gastronomiehauptstadt. Byzantinische, osmanische und jüdische Kulturen koexistieren."},
+   hl:["🥗 希腊美食","🏛 白塔遗址","☕ 无尽咖啡","🌊 海边长廊"],url:"https://www.skyscanner.de/flights-to/skg/"},
+
+  {id:12,name:{zh:"瓦莱塔",en:"Valletta",de:"Valletta"},flag:"🇲🇹",cname:{zh:"马耳他",en:"Malta",de:"Malta"},price:38,ap:["BER","MUC","FRA","DUS","AMS","CDG","VIE","BRU","ZRH"],vibes:["history","beach","hidden"],stay:{zh:"4-7天",en:"4-7 days",de:"4-7 Tage"},cost:"€60-85",dur:"weekend",icon:"☀️",
+   hook:{zh:"欧洲最小首都，冬天也有20度，骑士团的石头堡垒岛",en:"Europe's smallest capital, 20°C in winter, the Knights' fortress island",de:"Europas kleinste Hauptstadt, 20°C im Winter, Festungsinsel der Ritter"},
+   desc:{zh:"马耳他全年阳光充足，冬天也有20度，是逃离北欧阴霾的绝佳选择。瓦莱塔整个城市都是UNESCO遗产，巴洛克教堂美得令人窒息。戈佐岛一日游不可错过。",en:"Malta has sunshine year-round, 20°C even in winter. All of Valletta is a UNESCO site. Baroque churches are breathtaking. Gozo day trip is unmissable.",de:"Malta hat ganzjährig Sonne, 20°C selbst im Winter. Ganz Valletta ist UNESCO-Welterbe. Gozo-Tagesausflug unbedingt."},
+   hl:["☀️ 冬天也晒太阳","🏰 圣约翰大教堂","🚤 戈佐岛","🌊 蓝色泻湖"],url:"https://www.skyscanner.de/flights-to/mla/"},
+
+  {id:13,name:{zh:"塔林",en:"Tallinn",de:"Tallinn"},flag:"🇪🇪",cname:{zh:"爱沙尼亚",en:"Estonia",de:"Estland"},price:22,ap:["BER","MUC","FRA","AMS","BRU","CDG","ARN","GOT","VIE"],vibes:["history","city","hidden"],stay:{zh:"3-4天",en:"3-4 days",de:"3-4 Tage"},cost:"€40-60",dur:"weekend",icon:"🏰",
+   hook:{zh:"保存最完好的中世纪古城，Skype在这里诞生",en:"One of Europe's best-preserved medieval cities, birthplace of Skype",de:"Eine der besterhaltenen mittelalterlichen Städte, Geburtsort von Skype"},
+   desc:{zh:"塔林是Skype的诞生地，也是欧洲最完整的中世纪古城之一。老城区像一个活着的博物馆，但城市其实充满科技活力。物价比芬兰和瑞典便宜一半。",en:"Tallinn is where Skype was born, with one of Europe's most complete medieval old towns. Half the price of Finland.",de:"In Tallinn wurde Skype geboren. Eines der vollständigsten mittelalterlichen Altstädte. Halb so teuer wie Finnland."},
+   hl:["🏰 完整中世纪城墙","📱 Skype发源地","🍺 精酿啤酒","⛵ 近赫尔辛基"],url:"https://www.skyscanner.de/flights-to/tll/"},
+
+  {id:14,name:{zh:"里加",en:"Riga",de:"Riga"},flag:"🇱🇻",cname:{zh:"拉脱维亚",en:"Latvia",de:"Lettland"},price:20,ap:["BER","MUC","FRA","AMS","CDG","BRU","ARN","GOT","VIE"],vibes:["history","city","food"],stay:{zh:"3-4天",en:"3-4 days",de:"3-4 Tage"},cost:"€35-55",dur:"weekend",icon:"🏛",
+   hook:{zh:"波罗的海最大城市，欧洲新艺术建筑之都",en:"The Baltic's largest city, Art Nouveau capital of Europe",de:"Größte Stadt im Baltikum, Jugendstilhauptstadt Europas"},
+   desc:{zh:"里加拥有欧洲最密集的新艺术风格建筑群，老城和中央市场都是UNESCO遗产。拉脱维亚黑色香脂酒是必喝的奇特体验。物价极低，性价比超高。",en:"Riga has Europe's densest collection of Art Nouveau architecture. Old town and Central Market are UNESCO sites. Riga Black Balsam is a unique must-try drink.",de:"Riga hat Europas dichteste Jugendstilarchitektur. Altstadt und Zentralmarkt sind UNESCO-Welterbe."},
+   hl:["🏛 新艺术建筑","🏪 中央市场","🥃 黑色香脂酒","🌲 近海滩"],url:"https://www.skyscanner.de/flights-to/rix/"},
+
+  {id:15,name:{zh:"萨拉热窝",en:"Sarajevo",de:"Sarajevo"},flag:"🇧🇦",cname:{zh:"波黑",en:"Bosnia",de:"Bosnien"},price:30,ap:["BER","MUC","FRA","VIE","DUS","AMS","CDG","BRU"],vibes:["history","food","hidden"],stay:{zh:"3-5天",en:"3-5 days",de:"3-5 Tage"},cost:"€30-50",dur:"weekend",icon:"🕌",
+   hook:{zh:"欧洲的耶路撒冷，东西方文化相遇，物价极低",en:"Jerusalem of Europe – East meets West, incredibly low prices",de:"Jerusalem Europas – Ost trifft West, unglaublich günstig"},
+   desc:{zh:"萨拉热窝是一战导火索的发生地，也是欧洲唯一三大宗教建筑在同一街道共存的城市。切瓦皮小肉肠是波黑国民美食，物价极低。",en:"Sarajevo is where WWI was sparked, and Europe's only city where churches, mosques, and cathedrals share the same street. Ćevapi meat rolls are Bosnia's national food.",de:"Sarajevo: Wo der erste Weltkrieg begann. Kirchen, Moscheen und Kathedralen teilen eine Straße."},
+   hl:["🕌 老市集","⛪ 三教共存街","🏔 近滑雪场","🥙 波黑美食"],url:"https://www.skyscanner.de/flights-to/sjj/"},
+
+  {id:16,name:{zh:"马拉加",en:"Málaga",de:"Málaga"},flag:"🇪🇸",cname:{zh:"西班牙",en:"Spain",de:"Spanien"},price:40,ap:["BER","MUC","FRA","DUS","AMS","CDG","BRU","VIE","ZRH","PRG"],vibes:["beach","city","food"],stay:{zh:"4-6天",en:"4-6 days",de:"4-6 Tage"},cost:"€50-70",dur:"weekend",icon:"🎨",
+   hook:{zh:"毕加索的故乡，阳光海滩城市里藏着世界级博物馆",en:"Picasso's birthplace, a sunny beach city with world-class museums",de:"Picassos Geburtsstadt, sonnige Strandmetropole mit erstklassigen Museen"},
+   desc:{zh:"马拉加不只是飞往阳光海岸的中转站，本身就有丰富文化。毕加索博物馆、庞培度中心分馆、古罗马剧场都在老城区步行范围内，全年阳光充足。",en:"Málaga isn't just a gateway to Costa del Sol. Picasso Museum, Centre Pompidou satellite, and Roman theatre are all walkable. Year-round sunshine.",de:"Málaga ist mehr als ein Gateway zur Costa del Sol. Picasso-Museum, Centre Pompidou und Römertheater alle fußläufig."},
+   hl:["🎨 毕加索博物馆","🏖 阳光海岸","🏰 城堡","🦑 炸海鲜"],url:"https://www.skyscanner.de/flights-to/agp/"},
+
+  {id:17,name:{zh:"布达佩斯",en:"Budapest",de:"Budapest"},flag:"🇭🇺",cname:{zh:"匈牙利",en:"Hungary",de:"Ungarn"},price:35,ap:["BER","MUC","FRA","DUS","AMS","CDG","BRU","VIE","PRG","WAW","ZRH","ARN"],vibes:["city","history","food"],stay:{zh:"3-5天",en:"3-5 days",de:"3-5 Tage"},cost:"€40-65",dur:"weekend",icon:"♨️",
+   hook:{zh:"多瑙河畔的璀璨明珠，温泉浴池与宏伟建筑并存",en:"Pearl of the Danube, thermal baths meet stunning architecture",de:"Perle der Donau, Thermalbäder treffen prächtige Architektur"},
+   desc:{zh:"布达佩斯被多瑙河一分为二，布达是古城，佩斯是现代都市。Széchenyi温泉浴场是全欧洲最美的室外温泉之一。夜晚游船看国会大厦倒影是必做体验。",en:"Budapest is split by the Danube – Buda is historic, Pest is modern. Széchenyi thermal baths are among Europe's finest. Evening river cruise to see the Parliament is unmissable.",de:"Budapest wird von der Donau geteilt. Széchenyi-Thermalbad eines der schönsten Europas."},
+   hl:["♨️ Széchenyi温泉","🏛 国会大厦","🌉 链桥","🎻 匈牙利美食"],url:"https://www.skyscanner.de/flights-to/bud/"},
+
+  {id:18,name:{zh:"克卢日",en:"Cluj-Napoca",de:"Cluj"},flag:"🇷🇴",cname:{zh:"罗马尼亚",en:"Romania",de:"Rumänien"},price:18,ap:["BER","MUC","FRA","DUS","AMS","CDG","BRU","VIE","PRG"],vibes:["hidden","city","history"],stay:{zh:"2-4天",en:"2-4 days",de:"2-4 Tage"},cost:"€20-35",dur:"weekend",icon:"🎵",
+   hook:{zh:"罗马尼亚最活跃的大学城，欧洲最便宜城市之一",en:"Romania's most vibrant university city, one of Europe's cheapest",de:"Rumäniens lebendigste Universitätsstadt, eine der günstigsten in Europa"},
+   desc:{zh:"克卢日是罗马尼亚最活跃的年轻城市，也是Untold音乐节的举办地（欧洲最大电音节之一）。老城广场保存完好，物价是西欧的四分之一。距德古拉城堡2小时车程。",en:"Cluj is Romania's most vibrant young city and home to Untold Festival (one of Europe's biggest EDM events). 1/4 of Western European prices. 2h from Dracula's castle.",de:"Cluj ist Rumäniens lebendigste Jugendstadt und Heimat des Untold Festivals. 1/4 der westeuropäischen Preise."},
+   hl:["🎵 Untold音乐节","🏰 近德古拉城堡","🍺 极便宜啤酒","🏛 联合广场"],url:"https://www.skyscanner.de/flights-to/clj/"},
+
+  {id:19,name:{zh:"维尔纽斯",en:"Vilnius",de:"Vilnius"},flag:"🇱🇹",cname:{zh:"立陶宛",en:"Lithuania",de:"Litauen"},price:19,ap:["BER","MUC","FRA","AMS","CDG","BRU","ARN","GOT","VIE"],vibes:["history","hidden","city"],stay:{zh:"3-4天",en:"3-4 days",de:"3-4 Tage"},cost:"€35-55",dur:"weekend",icon:"🏛",
+   hook:{zh:"波罗的海最被忽略的首都，巴洛克建筑密度欧洲第一",en:"The Baltic's most overlooked capital, highest Baroque density in Europe",de:"Die am meisten übersehene Hauptstadt des Baltikums"},
+   desc:{zh:"维尔纽斯老城是UNESCO遗产，巴洛克教堂的数量让人叹为观止。有一个自称独立国家的街区Užupis，有自己的宪法。物价比塔林低，游客比里加少。",en:"Vilnius old town is UNESCO-listed. The district of Užupis declared itself an independent republic with its own constitution. Cheaper than Tallinn.",de:"Vilnius Altstadt ist UNESCO-Welterbe. Das Viertel Užupis erklärte sich zur unabhängigen Republik."},
+   hl:["🏛 巴洛克老城","🗺 Užupis共和国","🎨 街头艺术","🌲 近特拉凯城堡"],url:"https://www.skyscanner.de/flights-to/vno/"},
+
+  {id:20,name:{zh:"科托尔",en:"Kotor",de:"Kotor"},flag:"🇲🇪",cname:{zh:"黑山",en:"Montenegro",de:"Montenegro"},price:45,ap:["BER","MUC","FRA","VIE","AMS","CDG","BRU"],vibes:["history","beach","hidden"],stay:{zh:"4-6天",en:"4-6 days",de:"4-6 Tage"},cost:"€50-75",dur:"weekend",icon:"🏰",
+   hook:{zh:"亚得里亚海峡湾里的中世纪古城，比杜布罗夫尼克便宜一半",en:"Medieval city in an Adriatic fjord, half the price of Dubrovnik",de:"Mittelalterliche Stadt in einem Adriafjord, halb so teuer wie Dubrovnik"},
+   desc:{zh:"科托尔湾是欧洲最南端的峡湾，古城完整保存了中世纪城墙。爬上山顶圣约翰要塞俯瞰整个湾区，是整个亚得里亚海最壮观的景色之一。",en:"Kotor Bay is Europe's southernmost fjord with a perfectly preserved medieval walled city. Climb to St John's Fortress for views over the whole bay. 50% cheaper than Dubrovnik.",de:"Kotor Bay ist Europas südlichster Fjord mit perfekt erhaltener Stadtmauer."},
+   hl:["🏰 中世纪城墙","🌊 峡湾美景","🏔 登山俯瞰","🚤 海湾游船"],url:"https://www.skyscanner.de/flights-to/tiv/"},
+
+  {id:21,name:{zh:"特内里费",en:"Tenerife",de:"Teneriffa"},flag:"🇪🇸",cname:{zh:"加纳利群岛",en:"Canary Islands",de:"Kanarische Inseln"},price:55,ap:["FRA","MUC","DUS","BER","AMS","CDG","BRU","VIE","ZRH","MAD","BCN"],vibes:["beach","nature","hidden"],stay:{zh:"7天+",en:"7+ days",de:"7+ Tage"},cost:"€65-90",dur:"long",icon:"🌋",
+   hook:{zh:"欧洲冬季避寒天堂，全年22-28度，火山与海滩并存",en:"Europe's winter sun paradise, 22-28°C year-round, volcano meets beach",de:"Europas Wintersonnenziel, 22-28°C ganzjährig"},
+   desc:{zh:"特内里费属于西班牙但在非洲海岸，全年温暖。泰德火山是西班牙最高峰，南部是度假区，北部是真正的加纳利文化。冬天逃离欧洲阴霾的不二之选。",en:"Tenerife belongs to Spain but sits off Africa's coast. Year-round warmth. Mount Teide is Spain's highest peak. South is resort-land, north is authentic Canarian culture.",de:"Teneriffa liegt vor Afrikas Küste. Ganzjährig warm. Teide ist Spaniens höchster Gipfel."},
+   hl:["🌋 泰德火山","🏖 黑沙滩","☀️ 冬日暖阳","🐋 鲸鱼观赏"],url:"https://www.skyscanner.de/flights-to/tfs/"}
+];
+
+// ── TICKETMASTER API ──────────────────────────────────
+// 在 developer.ticketmaster.com 注册后替换下方的 API Key
+var TM_API_KEY = 'HjkyAAvRl0Fai6JDHjw3CxCTroVX1ATe';
+
+// 分类标签映射
+var TM_TAG_MAP = {
+  'Music':   '🎵 音乐',
+  'Sports':  '⚽ 体育',
+  'Arts & Theatre': '🎭 艺术',
+  'Film':    '🎬 电影',
+  'Miscellaneous': '🎪 活动',
+  'Family':  '👨‍👩‍👧 家庭'
+};
+
+// 默认 fallback 数据（API 加载前或失败时显示）
+var EVENTS_FALLBACK = [
+  {tag:"🎤 演唱会",city:"柏林 · 德国",name:"Coldplay – Music of the Spheres",date:"2025年7月19-20日",price:"约 €80-150",extra:"在柏林奥林匹克体育场举行，这是Coldplay有史以来规模最大的巡演之一。建议提前2小时到场，可以乘坐U12地铁前往。",url:"https://www.coldplay.com/tour/"},
+  {tag:"🎵 音乐节",city:"比利时 · 根特附近",name:"Tomorrowland电音节",date:"2025年7月18-27日",price:"全程票约 €300+",extra:"全球最大电音节之一，今年主题是Orbis。住宿需提前半年预定。从布鲁塞尔有专线巴士，约1小时。",url:"https://www.tomorrowland.com"},
+  {tag:"🏎 F1赛车",city:"斯帕 · 比利时",name:"F1比利时大奖赛",date:"2025年7月25-27日",price:"约 €150-500",extra:"斯帕赛道是F1史上最传奇的赛道之一，Eau Rouge弯道是必看位置。比利时天气多变，务必带雨衣。",url:"https://www.spa-francorchamps.be"}
+];
+
+var EVENTS = EVENTS_FALLBACK.slice(); // 初始使用 fallback
+
+// 将 Ticketmaster 原始数据转换为应用格式
+function tmEventToCard(e) {
+  var segment = (e.classifications && e.classifications[0] && e.classifications[0].segment)
+    ? e.classifications[0].segment.name : 'Miscellaneous';
+  var tag = TM_TAG_MAP[segment] || '🎪 活动';
+
+  var city = (e._embedded && e._embedded.venues && e._embedded.venues[0])
+    ? (e._embedded.venues[0].city ? e._embedded.venues[0].city.name : '') +
+      (e._embedded.venues[0].country ? ' · ' + e._embedded.venues[0].country.name : '')
+    : '欧洲';
+
+  var date = (e.dates && e.dates.start)
+    ? (e.dates.start.localDate || '日期待定')
+    : '日期待定';
+
+  var price = '价格待定';
+  if (e.priceRanges && e.priceRanges.length > 0) {
+    var mn = Math.round(e.priceRanges[0].min);
+    var mx = Math.round(e.priceRanges[0].max);
+    price = mn === mx ? '€' + mn : '€' + mn + '–' + mx;
+  }
+
+  var venue = (e._embedded && e._embedded.venues && e._embedded.venues[0])
+    ? '📍 ' + e._embedded.venues[0].name : '';
+
+  return {
+    tag: tag,
+    city: city,
+    name: e.name,
+    date: date,
+    price: price,
+    extra: venue,
+    url: e.url || '#'
+  };
+}
+
+// 从 Ticketmaster 拉取欧洲活动数据
+function loadTMEvents() {
+  // 若未设置 API Key 则跳过
+  if (!TM_API_KEY || TM_API_KEY === 'YOUR_API_KEY_HERE') return;
+
+  var url = 'https://app.ticketmaster.com/discovery/v2/events.json'
+    + '?apikey=' + TM_API_KEY
+    + '&countryCode=DE,IT,ES,FR,NL,PL,CZ,AT,PT,HU'  // 覆盖应用中所有目的地国家
+    + '&size=10'
+    + '&sort=date,asc'
+    + '&classificationName=Music,Sports,Arts'         // 与旅游相关的分类
+    + '&startDateTime=' + new Date().toISOString().split('.')[0] + 'Z'; // 仅显示未来活动
+
+  fetch(url)
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function(data) {
+      if (!data._embedded || !data._embedded.events || !data._embedded.events.length) return;
+      EVENTS = data._embedded.events.map(tmEventToCard);
+      evIdx = 0;
+      renderEv(); // 数据到位后刷新卡片
+    })
+    .catch(function(err) {
+      console.warn('[Ticketmaster] 加载失败，使用备用数据:', err.message);
+      // 保持 fallback 数据，不做任何操作
+    });
+}
+
+// ── ARTICLES ──────────────────────────────────
+var ARTICLES = [
+  {tag:"城市攻略",title:"波尔图3天完全指南：葡萄酒、瓷砖和杜罗河日落",date:"2025年4月",icon:"🍷"},
+  {tag:"捡漏攻略",title:"从德国飞意大利南部：普利亚大区为什么值得去？",date:"2025年3月",icon:"✈️"},
+  {tag:"小众推荐",title:"塔林：Skype诞生的地方，欧洲最完整的中世纪古城",date:"2025年3月",icon:"🏰"},
+  {tag:"省钱攻略",title:"在欧洲坐廉航：5个避免被额外收费的实用技巧",date:"2025年2月",icon:"💡"},
+  {tag:"城市攻略",title:"布达佩斯：温泉、夜生活和多瑙河，周末怎么玩最值",date:"2025年2月",icon:"♨️"},
+  {tag:"小众推荐",title:"萨拉热窝：被忽视的波黑首都，东西方文明在此相遇",date:"2025年1月",icon:"🕌"}
+];
+
+// ── DEALS ──────────────────────────────────
+var DEALS = [
+  {route:"柏林 → 巴里",flag:"🇮🇹",info:"瑞安航空 · 周末往返",badge:"⚡ 本周特价",price:"€19",was:"€55",url:"https://www.ryanair.com"},
+  {route:"阿姆斯特丹 → 克卢日",flag:"🇷🇴",info:"Wizz Air · 周三出发",badge:"🔥 史低价格",price:"€18",was:"€49",url:"https://wizzair.com"},
+  {route:"科隆 → 塔林",flag:"🇪🇪",info:"瑞安航空 · 限量座位",badge:"⚡ 仅剩3席",price:"€22",was:"€68",url:"https://www.ryanair.com"},
+  {route:"法兰克福 → 马拉加",flag:"🇪🇸",info:"易捷航空 · 下周出发",badge:"🌞 阳光捡漏",price:"€35",was:"€89",url:"https://www.easyjet.com"},
+  {route:"布鲁塞尔 → 波尔图",flag:"🇵🇹",info:"瑞安航空 · 周五早班",badge:"🍷 超值推荐",price:"€28",was:"€72",url:"https://www.ryanair.com"}
+];
+
+// ── I18N ──────────────────────────────────
+var I18N = {
+  zh:{tl:"有假期，不知道飞哪？",lc:"出发国家",la:"出发机场",lb:"最高票价",lv:"旅行风格",ld:"假期天数",rl:"找到",ru:"个目的地",rs:"↑ 按票价排序",dp:"最低票价",ds:"建议游玩",dc:"日消费",bk:"✈ 查看机票",pf:"起",ph:"图片即将上线",empty:"没有符合条件的目的地，试试放宽筛选条件",evT:"🎴 今天去做什么？",evS:"点击卡片查看详情 · × 换一张",evH:"点击查看详情",artT:"📖 城市攻略",dlT:"🔥 本周捡漏",dlS:"限时低价，先到先得",
+   countries:{DE:"🇩🇪 德国",FR:"🇫🇷 法国",NL:"🇳🇱 荷兰",PL:"🇵🇱 波兰",IT:"🇮🇹 意大利",ES:"🇪🇸 西班牙",AT:"🇦🇹 奥地利",BE:"🇧🇪 比利时",CZ:"🇨🇿 捷克",SE:"🇸🇪 瑞典",HU:"🇭🇺 匈牙利",RO:"🇷🇴 罗马尼亚",PT:"🇵🇹 葡萄牙",CH:"🇨🇭 瑞士"},
+   budgets:{"999":"💸 不限","30":"€30内 捡漏","50":"€50内","80":"€80内","120":"€120内"},
+   vibes:{"":"全部风格","beach":"🏖 海滩","history":"🏛 历史","nature":"🌿 自然","food":"🍽 美食","city":"🏙 城市","hidden":"🔮 小众"},
+   durs:{"any":"⏱ 不限天数","weekend":"🌙 周末 2-3天","week":"📅 一周 4-7天","long":"🏖 长假 7天+"}},
+  en:{tl:"Time off but no idea where to fly?",lc:"Country",la:"Airport",lb:"Max fare",lv:"Style",ld:"Trip length",rl:"Found",ru:"destinations",rs:"↑ By price",dp:"Lowest fare",ds:"Stay",dc:"Daily budget",bk:"✈ Find flights",pf:"from",ph:"Photo coming soon",empty:"No destinations match. Try adjusting your filters.",evT:"🎴 What to do today?",evS:"Tap card for details · × for next",evH:"Tap for details",artT:"📖 City Guides",dlT:"🔥 This Week's Deals",dlS:"Limited-time low fares",
+   countries:{DE:"🇩🇪 Germany",FR:"🇫🇷 France",NL:"🇳🇱 Netherlands",PL:"🇵🇱 Poland",IT:"🇮🇹 Italy",ES:"🇪🇸 Spain",AT:"🇦🇹 Austria",BE:"🇧🇪 Belgium",CZ:"🇨🇿 Czech Rep.",SE:"🇸🇪 Sweden",HU:"🇭🇺 Hungary",RO:"🇷🇴 Romania",PT:"🇵🇹 Portugal",CH:"🇨🇭 Switzerland"},
+   budgets:{"999":"💸 Any","30":"Under €30","50":"Under €50","80":"Under €80","120":"Under €120"},
+   vibes:{"":"All styles","beach":"🏖 Beach","history":"🏛 History","nature":"🌿 Nature","food":"🍽 Food","city":"🏙 City","hidden":"🔮 Hidden gem"},
+   durs:{"any":"⏱ Any","weekend":"🌙 Weekend 2-3d","week":"📅 One week","long":"🏖 Long trip 7d+"}},
+  de:{tl:"Urlaub, aber wohin fliegen?",lc:"Land",la:"Flughafen",lb:"Max. Preis",lv:"Reisestil",ld:"Reisedauer",rl:"",ru:"Ziele gefunden",rs:"↑ Nach Preis",dp:"Günstigster Preis",ds:"Aufenthalt",dc:"Tagesbudget",bk:"✈ Flüge finden",pf:"ab",ph:"Foto kommt bald",empty:"Keine passenden Ziele. Filter anpassen.",evT:"🎴 Was heute unternehmen?",evS:"Karte tippen für Details · × für nächste",evH:"Tippen für Details",artT:"📖 Stadtführer",dlT:"🔥 Deals dieser Woche",dlS:"Begrenzte Sonderpreise",
+   countries:{DE:"🇩🇪 Deutschland",FR:"🇫🇷 Frankreich",NL:"🇳🇱 Niederlande",PL:"🇵🇱 Polen",IT:"🇮🇹 Italien",ES:"🇪🇸 Spanien",AT:"🇦🇹 Österreich",BE:"🇧🇪 Belgien",CZ:"🇨🇿 Tschechien",SE:"🇸🇪 Schweden",HU:"🇭🇺 Ungarn",RO:"🇷🇴 Rumänien",PT:"🇵🇹 Portugal",CH:"🇨🇭 Schweiz"},
+   budgets:{"999":"💸 Egal","30":"Unter €30","50":"Unter €50","80":"Unter €80","120":"Unter €120"},
+   vibes:{"":"Alle Stile","beach":"🏖 Strand","history":"🏛 Geschichte","nature":"🌿 Natur","food":"🍽 Essen","city":"🏙 Stadt","hidden":"🔮 Geheimtipp"},
+   durs:{"any":"⏱ Egal","weekend":"🌙 Wochenende 2-3T","week":"📅 Eine Woche","long":"🏖 Langer Urlaub 7T+"}}
+};
+
+// ── STATE ──────────────────────────────────
+var lang = 'zh';
+var evIdx = 0;
+var evOpen = false;
+
+// ── HELPERS ──────────────────────────────────
+function g(id) { return document.getElementById(id); }
+
+function rSel(id, map, cur) {
+  var s = g(id);
+  s.innerHTML = '';
+  var keys = Object.keys(map);
+  for (var i = 0; i < keys.length; i++) {
+    var o = document.createElement('option');
+    o.value = keys[i];
+    o.textContent = map[keys[i]];
+    s.appendChild(o);
+  }
+  if (cur !== undefined && map[cur] !== undefined) s.value = cur;
+}
+
+function setText(id, txt) {
+  var el = g(id);
+  if (el) el.textContent = txt;
+}
+
+// ── AIRPORTS ──────────────────────────────────
+function updAP() {
+  var co = g('sC').value;
+  var list = AP[co] || [];
+  var s = g('sA');
+  s.innerHTML = '';
+  for (var i = 0; i < list.length; i++) {
+    var o = document.createElement('option');
+    o.value = list[i].c;
+    o.textContent = list[i].n[lang] + ' (' + list[i].c + ')';
+    s.appendChild(o);
+  }
+  go();
+}
+
+// ── SET LANGUAGE ──────────────────────────────────
+function setLang(l) {
+  lang = l;
+  g('lb-zh').className = 'lb' + (l === 'zh' ? ' on' : '');
+  g('lb-en').className = 'lb' + (l === 'en' ? ' on' : '');
+  g('lb-de').className = 'lb' + (l === 'de' ? ' on' : '');
+
+  var x = I18N[l];
+  setText('el-tl', x.tl);
+  setText('el-lc', x.lc);
+  setText('el-la', x.la);
+  setText('el-lb', x.lb);
+  setText('el-lv', x.lv);
+  setText('el-ld', x.ld);
+  setText('el-rs', x.rs);
+  setText('el-dp', x.dp);
+  setText('el-ds', x.ds);
+  setText('el-dc', x.dc);
+  setText('el-phTxt', x.ph);
+  setText('el-evT', x.evT);
+  setText('el-evS', x.evS);
+  setText('evHint', x.evH);
+  setText('el-artT', x.artT);
+  setText('el-dlT', x.dlT);
+  setText('el-dlS', x.dlS);
+  setText('dBk', x.bk);
+
+  var curC = g('sC').value;
+  var curB = g('sB').value;
+  var curV = g('sV').value;
+  var curD = g('sD').value;
+  var curA = g('sA').value;
+
+  rSel('sC', x.countries, curC);
+  rSel('sB', x.budgets, curB);
+  rSel('sV', x.vibes, curV);
+  rSel('sD', x.durs, curD);
+
+  var co = g('sC').value;
+  var list = AP[co] || [];
+  var sa = g('sA');
+  sa.innerHTML = '';
+  for (var i = 0; i < list.length; i++) {
+    var o = document.createElement('option');
+    o.value = list[i].c;
+    o.textContent = list[i].n[l] + ' (' + list[i].c + ')';
+    sa.appendChild(o);
+  }
+  if (curA) sa.value = curA;
+
+  go();
+}
+
+// ── FILTER & RENDER CITIES ──────────────────────────────────
+function go() {
+  var ap = g('sA').value;
+  var bg = parseInt(g('sB').value) || 999;
+  var vi = g('sV').value;
+  var du = g('sD').value;
+  var x = I18N[lang];
+
+  var res = [];
+  for (var i = 0; i < CITIES.length; i++) {
+    var c = CITIES[i];
+    var ok = true;
+    if (ap) {
+      var found = false;
+      for (var j = 0; j < c.ap.length; j++) { if (c.ap[j] === ap) { found = true; break; } }
+      if (!found) ok = false;
+    }
+    if (c.price > bg) ok = false;
+    if (vi) {
+      var vfound = false;
+      for (var j = 0; j < c.vibes.length; j++) { if (c.vibes[j] === vi) { vfound = true; break; } }
+      if (!vfound) ok = false;
+    }
+    if (du !== 'any' && c.dur !== du) ok = false;
+    if (ok) res.push(c);
+  }
+  res.sort(function(a, b) { return a.price - b.price; });
+
+  g('el-rn').textContent = res.length;
+  g('el-rl').innerHTML = x.rl + ' <span class="rc">' + res.length + '</span> ' + x.ru;
+
+  var cl = g('CL');
+  cl.innerHTML = '';
+
+  if (!res.length) {
+    var emp = document.createElement('div');
+    emp.className = 'emp';
+    emp.innerHTML = '<div class="ei">🔍</div><p>' + x.empty + '</p>';
+    cl.appendChild(emp);
+    return;
+  }
+
+  for (var i = 0; i < res.length; i++) {
+    var city = res[i];
+    var cn = city.name[lang] || city.name.zh;
+    var co = city.cname[lang] || city.cname.zh;
+    var hk = city.hook[lang] || city.hook.zh;
+    var vl = [];
+    for (var j = 0; j < city.vibes.length; j++) {
+      vl.push(x.vibes[city.vibes[j]] || city.vibes[j]);
+    }
+
+    var card = document.createElement('div');
+    card.className = 'cc';
+    var vpHtml = '';
+    for (var j = 0; j < vl.length; j++) {
+      vpHtml += '<span class="vp">' + vl[j] + '</span>';
+    }
+    card.innerHTML =
+      '<div class="cc-l">' +
+        '<div><span class="cn">' + cn + '</span><span class="cfl">' + city.flag + ' ' + co + '</span></div>' +
+        '<div class="chk">' + hk + '</div>' +
+        '<div class="cvb">' + vpHtml + '</div>' +
+      '</div>' +
+      '<div class="cc-r">' +
+        '<span class="pfr">' + x.pf + '</span>' +
+        '<div class="pr">€' + city.price + '</div>' +
+        '<span class="fb">✈ ~2h</span>' +
+      '</div>';
+
+    (function(city) {
+      card.addEventListener('click', function() { showDetail(city); });
+    })(city);
+    cl.appendChild(card);
+  }
+}
+
+// ── AVIASALES 实时价格 ──────────────────────────────────
+var TP_TOKEN = '6d99b8652ec77b4e9ed9878b56d00c73';
+var TP_MARKER = '524299';
+
+// 目的地城市→IATA 机场代码映射（用于API查询）
+var CITY_IATA = {
+  'PRG':'PRG','BUD':'BUD','WAW':'WAW','KRK':'KRK','VIE':'VIE',
+  'BCN':'BCN','MAD':'MAD','AGP':'AGP','SVQ':'SVQ','LIS':'LIS',
+  'OPO':'OPO','FCO':'FCO','NAP':'NAP','BGY':'MXP','SKG':'SKG',
+  'MLA':'MLA','TLL':'TLL','RIX':'RIX','VNO':'VNO','SJJ':'SJJ',
+  'TIV':'TIV','TFS':'TFS','CLJ':'CLJ','OTP':'OTP','ARN':'ARN',
+  'GOT':'GOT','ZRH':'ZRH','GVA':'GVA','BRU':'BRU','AMS':'AMS',
+  'CDG':'CDG','BER':'BER','MUC':'MUC','FRA':'FRA'
+};
+
+function getDestIATA(city) {
+  // 从 city.url 里提取 skyscanner 目的地代码，或用 city.ap 目的地
+  var url = city.url || '';
+  var m = url.match(/flights-to\/([a-z]{3})\//i);
+  if (m) return m[1].toUpperCase();
+  return null;
+}
+
+function loadLivePrice(originIATA, destIATA) {
+  var box = g('lpContent');
+  var routeEl = g('lpRoute');
+  if (!originIATA || !destIATA) {
+    box.innerHTML = '<div class="lp-err">请先选择出发机场</div>';
+    routeEl.textContent = '';
+    return;
+  }
+  box.innerHTML = '<div class="lp-loading"><span class="lp-dot"></span> 正在查询实时价格…</div>';
+  routeEl.textContent = originIATA + ' → ' + destIATA;
+
+  // Aviasales 最便宜价格 API（最近半年内最低价，按月）
+  var url = 'https://api.travelpayouts.com/v1/prices/cheap?origin=' + originIATA +
+    '&destination=' + destIATA + '&currency=eur&token=' + TP_TOKEN;
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.success || !data.data || !data.data[destIATA]) {
+        box.innerHTML = '<div class="lp-err">暂无该航线价格数据</div>';
+        return;
+      }
+      var flights = data.data[destIATA];
+      // 找最低价
+      var minPrice = Infinity, bestFlight = null;
+      Object.keys(flights).forEach(function(k) {
+        var f = flights[k];
+        if (f.price < minPrice) { minPrice = f.price; bestFlight = f; }
+      });
+      if (!bestFlight) {
+        box.innerHTML = '<div class="lp-err">暂无价格数据</div>';
+        return;
+      }
+      var depart = bestFlight.depart_date || '';
+      var airline = bestFlight.airline || '';
+      // 生成 Aviasales 购票链接（含 marker）
+      var buyUrl = 'https://www.aviasales.com/search/' + originIATA + depart.replace(/-/g,'').slice(0,8) + destIATA + '1?marker=' + TP_MARKER;
+      box.innerHTML =
+        '<div class="lp-row">' +
+          '<div class="lp-price">€' + minPrice + '</div>' +
+          '<div class="lp-meta">' +
+            (depart ? '出发：' + depart + '<br>' : '') +
+            (airline ? '航司：' + airline : '') +
+          '</div>' +
+        '</div>' +
+        '<a href="' + buyUrl + '" target="_blank" style="display:inline-block;margin-top:7px;font-size:.7rem;background:#1a6fa0;color:#fff;padding:5px 12px;border-radius:7px;text-decoration:none">立即购票 →</a>';
+    })
+    .catch(function() {
+      box.innerHTML = '<div class="lp-err">查询失败，请稍后重试</div>';
+    });
+}
+
+// ── DETAIL SHEET ──────────────────────────────────
+function showDetail(city) {
+  var x = I18N[lang];
+  var cn = city.name[lang] || city.name.zh;
+  var co = city.cname[lang] || city.cname.zh;
+  var st = city.stay[lang] || city.stay.zh;
+  var ds = city.desc[lang] || city.desc.zh;
+
+  setText('dIcon', city.icon || '🏙');
+  setText('dN', cn);
+  setText('dM', city.flag + ' ' + co);
+  g('dP').innerHTML = '<b>€' + city.price + '</b> ' + x.pf;
+  setText('dS', st);
+  setText('dC', city.cost + '/天');
+  setText('dD', ds);
+  setText('dBk', x.bk);
+  g('dBk').href = city.url;
+
+  var hl = g('dHL');
+  hl.innerHTML = '';
+  for (var i = 0; i < city.hl.length; i++) {
+    var s = document.createElement('span');
+    s.className = 'hlc';
+    s.textContent = city.hl[i];
+    hl.appendChild(s);
+  }
+
+  // 查询实时机票价格
+  var originIATA = g('sA').value;
+  var destIATA = getDestIATA(city);
+  loadLivePrice(originIATA, destIATA);
+
+  g('OV').className = 'ov on';
+  g('SH').className = 'sh on';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSheet() {
+  g('OV').className = 'ov';
+  g('SH').className = 'sh';
+  document.body.style.overflow = '';
+}
+
+// ── EVENTS ──────────────────────────────────
+function renderEv() {
+  var e = EVENTS[evIdx];
+  setText('evTag', e.tag);
+  setText('evCity', e.city);
+  setText('evName', e.name);
+  setText('evDate', '📅 ' + e.date);
+  setText('evPrice', '💶 ' + e.price);
+  setText('evExtra', e.extra);
+  g('evExtra').className = 'ev-extra';
+  evOpen = false;
+}
+
+function tapEvent() {
+  if (!evOpen) {
+    g('evExtra').className = 'ev-extra show';
+    setText('evHint', '再次点击 → 购票');
+    evOpen = true;
+  } else {
+    window.open(EVENTS[evIdx].url, '_blank');
+  }
+}
+
+function nextEv() {
+  evIdx = (evIdx + 1) % EVENTS.length;
+  renderEv();
+  setText('evHint', I18N[lang].evH);
+}
+
+// ── ARTICLES ──────────────────────────────────
+function renderArt() {
+  var al = g('AL');
+  al.innerHTML = '';
+  for (var i = 0; i < ARTICLES.length; i++) {
+    var a = ARTICLES[i];
+    var card = document.createElement('div');
+    card.className = 'art-card';
+    card.innerHTML =
+      '<div class="art-icon">' + a.icon + '</div>' +
+      '<div class="art-body">' +
+        '<div class="art-tag">' + a.tag + '</div>' +
+        '<div class="art-title">' + a.title + '</div>' +
+        '<div class="art-meta">' + a.date + '</div>' +
+      '</div>';
+    al.appendChild(card);
+  }
+}
+
+// ── DEALS ──────────────────────────────────
+function renderDeals() {
+  var dl = g('DL');
+  dl.innerHTML = '';
+  for (var i = 0; i < DEALS.length; i++) {
+    var d = DEALS[i];
+    var card = document.createElement('div');
+    card.className = 'deal-card';
+    card.innerHTML =
+      '<div class="deal-l">' +
+        '<div class="deal-route">' + d.route + ' ' + d.flag + '</div>' +
+        '<div class="deal-info">' + d.info + '</div>' +
+        '<span class="deal-badge">' + d.badge + '</span>' +
+      '</div>' +
+      '<div class="deal-r">' +
+        '<div class="deal-was">' + d.was + '</div>' +
+        '<div class="deal-price">' + d.price + '</div>' +
+        '<button class="deal-btn">查看 →</button>' +
+      '</div>';
+    (function(url) {
+      card.querySelector('.deal-btn').addEventListener('click', function() {
+        window.open(url, '_blank');
+      });
+    })(d.url);
+    dl.appendChild(card);
+  }
+}
+
+// ── BOOT ──────────────────────────────────
+var x0 = I18N[lang];
+rSel('sC', x0.countries);
+rSel('sB', x0.budgets);
+rSel('sV', x0.vibes);
+rSel('sD', x0.durs);
+updAP();
+renderEv();
+renderArt();
+renderDeals();
+loadTMEvents(); // 异步拉取 Ticketmaster 真实活动数据
+</script>
+
+</body>
+</html>
